@@ -1,5 +1,6 @@
 import { HttpError } from './errorHandler.js';
 import { ALLOWED_UNITS } from '../utils/units.js';
+import { INGREDIENT_CATEGORIES } from '../utils/categories.js';
 
 export function assert(cond, status, message) {
   if (!cond) throw new HttpError(status, message);
@@ -74,12 +75,20 @@ export function validateProfileUpdate(body = {}) {
 }
 
 export function validateIngredient(body = {}) {
+  const category = optionalString(body.category, 'category', { max: 50 });
+  if (category !== null) {
+    assert(
+      INGREDIENT_CATEGORIES.includes(category),
+      400,
+      `category must be one of: ${INGREDIENT_CATEGORIES.join(', ')}`
+    );
+  }
   return {
     name: requireString(body.name, 'name', { max: 150 }),
     purchase_price: requireNumber(body.purchase_price, 'purchase_price', { min: 0 }),
     purchase_qty: requireNumber(body.purchase_qty, 'purchase_qty', { min: 0.000001 }),
     purchase_unit: requireUnit(body.purchase_unit, 'purchase_unit'),
-    category: optionalString(body.category, 'category', { max: 50 }),
+    category,
   };
 }
 
@@ -122,7 +131,12 @@ export function validateCalculate(body = {}) {
     min: 0,
     max: 99.99,
   });
-  return { target_margin_percent, overhead_allocations };
+  const rawBuffer = body.price_buffer_percent;
+  const price_buffer_percent =
+    rawBuffer === undefined || rawBuffer === null || rawBuffer === ''
+      ? 0
+      : requireNumber(rawBuffer, 'price_buffer_percent', { min: 0 });
+  return { target_margin_percent, price_buffer_percent, overhead_allocations };
 }
 
 export function parseIdParam(value, field = 'id') {

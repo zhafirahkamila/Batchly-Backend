@@ -69,6 +69,11 @@ CREATE TABLE IF NOT EXISTS recipe_overhead (
 CREATE TABLE IF NOT EXISTS pricing (
   id INT PRIMARY KEY AUTO_INCREMENT,
   recipe_id INT NOT NULL UNIQUE,
+  ingredient_cost_per_unit DECIMAL(12,2) NOT NULL DEFAULT 0,
+  packaging_cost_per_unit DECIMAL(12,2) NOT NULL DEFAULT 0,
+  overhead_cost_per_unit DECIMAL(12,2) NOT NULL DEFAULT 0,
+  price_buffer_percent DECIMAL(5,2) NOT NULL DEFAULT 0,
+  hpp_before_buffer DECIMAL(12,2) NOT NULL DEFAULT 0,
   hpp_per_unit DECIMAL(12,2) NOT NULL,
   target_margin_percent DECIMAL(5,2),
   suggested_price DECIMAL(12,2),
